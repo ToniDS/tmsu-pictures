@@ -1,0 +1,6 @@
+1. find all jpegs, write to stdout
+
+2. python script read from stdin, write to file: 
+each line 
+
+3. bash script: invokes exiftool mit -createdate+=a filenames
