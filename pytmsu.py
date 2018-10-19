@@ -63,7 +63,7 @@ class tmsuConnect():
         new_tag = clean_name(new_tag)
         self.cursor.execute(f"SELECT {new_tag} from tag")
         res = self.cursor.fetchall()
-        print(res)
+        #print(res)
         return res != NULL
 
     def get_tags_for_file(self, file):
@@ -142,9 +142,9 @@ for file in allFiles:
 
         tags = tm.get_tags_for_file(file)
         tag_names = []
-        print(tags)
+        # print(tags)
         for tag in tags:
-            print(tag.id)
+            # print(tag.id)
             tag_names.append(tag.name)
 
         file_tags= ', '.join(tag_names)
