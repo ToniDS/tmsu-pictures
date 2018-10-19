@@ -3,6 +3,13 @@ import subprocess
 import time
 import sys
 
+def clean_name(some_var):
+    """ Helper function to make variables usable in SQLite queries
+    without risk of SQL injection vulnerability."""
+    var = str(some_var)
+    return ''.join(char for char in var if char.isalnum())
+
+
 class tmsuFile():
     def __init__(self, dbRow):
         self.id = dbRow[0]
@@ -55,13 +62,15 @@ class tmsuConnect():
         return res != NULL
 
     def get_tags_for_file(self, file):
-        t = (file.id, )
-        self.cursor.execute("SELECT *"
-                            "FROM (file_tag INNER JOIN tag"
-                            "ON file_tag.tag_id = tag.id)"
-                            "WHERE file_id = ?)", t)
-        res = self.cursor.fetchall()
+        """This does not quite work yet."""
 
+        file_id = clean_name(file.id)
+
+        self.cursor.execute("SELECT *"
+                            "FROM (file_tag INNER JOIN tag ON tag_id = id)"
+                            f"WHERE file_id = {file_id}")
+        res = self.cursor.fetchall()
+        print(res)
         tags_for_file = []
         for row in res:
             tags_for_file.append(tmsuTag(row))
@@ -101,6 +110,8 @@ for file in allFiles:
     fPath = file.getFilePath()
     #print(fPath)
     print(file.name)
+    # in order to not focus on the feh window, I have included something in my
+    # i3 config
     p = subprocess.Popen(['feh', '--auto-zoom', '--scale-down', fPath])
     #subprocess.check_call(shell=True)
 
@@ -114,6 +125,7 @@ for file in allFiles:
             print('NEXT')
             break
 
+
         tags = tm.get_tags_for_file(file)
         tag_names = []
         print(tags)
@@ -124,6 +136,7 @@ for file in allFiles:
         file_tags= ', '.join(tag_names)
 
         print(f"File {fPath} has the following tags: {file_tags}")
+
 
         user = input('''
         * enter new or existing tag
