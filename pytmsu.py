@@ -165,8 +165,21 @@ for file in allFiles:
             #TODO: ADD TAGs HERE!
             # first, parse tag
                 tags = user.split(",")
-                subprocess.Popen('tmsu tag ' + fPath +' ' +' '.join(tags), shell=True)
-                print(f"Added tags {' '.join(tags)} to file {fPath}")
+                tags_to_remove = []
+                for tag in tags:
+                    if tag[0] == "-":
+                        tags.remove(tag)
+                        tags_to_remove.append(tag)
+                if len(tags) != 0:
+                    subprocess.Popen(['tmsu', 'tag', '--', fPath, ' '.join(tags)])
+                    #subprocess.Popen('tmsu tag ' + fPath + ' ' + ' '.join(tags),
+                     #                shell=True)
+                    print(f"Added tags {' '.join(tags)} to file {fPath}")
+                if len(tags_to_remove) != 0:
+                    subprocess.Popen(['tmsu', 'untag', fPath,
+                                      ' '.join(tags_to_remove)])
+                    print(f"""Removed tags {' '.join(tags_to_remove)} to file
+                          {fPath}""")
 
         break
 
