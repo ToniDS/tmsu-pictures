@@ -124,7 +124,7 @@ for file in allFiles:
     # i3 config
     # check if file exists in directory
     if os.path.isfile(fPath):
-        p = subprocess.Popen('feh --auto-zoom --scale-down ' + fPath, shell=True,
+        p = subprocess.Popen(['feh', '--auto-zoom', '--scale-down', fPath],
                              stdin=subprocess.PIPE)
     #subprocess.check_call(shell=True)
     else:
