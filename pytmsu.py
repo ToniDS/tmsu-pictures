@@ -2,6 +2,7 @@ import sqlite3
 import subprocess
 import time
 import sys
+import os
 
 def clean_name(some_var):
     """ Helper function to make variables usable in SQLite queries
@@ -34,6 +35,8 @@ class tmsuFileTag():
         self.tag_id = dbRow[1]
         self.value_id = dbRow[2]
 
+
+
 class tmsuConnect():
     def __init__(self):
         self.connection = sqlite3.connect(".tmsu/db")
@@ -57,20 +60,27 @@ class tmsuConnect():
         return allFiles
 
     def check_if_tag_exists(self, new_tag):
+        new_tag = clean_name(new_tag)
         self.cursor.execute(f"SELECT {new_tag} from tag")
         res = self.cursor.fetchall()
+        print(res)
         return res != NULL
 
     def get_tags_for_file(self, file):
-        """This does not quite work yet."""
+        """Takes a database connection and a tmsuFile object,
+        returns a list of tmsuTag objects associated with this file."""
 
         file_id = clean_name(file.id)
+        ##directory = clean_name(filee.directory)
 
-        self.cursor.execute("SELECT *"
-                            "FROM (file_tag INNER JOIN tag ON tag_id = id)"
-                            f"WHERE file_id = {file_id}")
+        self.cursor.execute(f"""
+                            SELECT tag.id, tag.name
+                            FROM file_tag
+                            INNER JOIN tag
+                            ON file_tag.tag_id = tag.id
+                            WHERE file_id = {file_id}""")
+
         res = self.cursor.fetchall()
-        print(res)
         tags_for_file = []
         for row in res:
             tags_for_file.append(tmsuTag(row))
@@ -109,11 +119,16 @@ allFiles = tm.getAllFiles()
 for file in allFiles:
     fPath = file.getFilePath()
     #print(fPath)
-    print(file.name)
+
     # in order to not focus on the feh window, I have included something in my
     # i3 config
-    p = subprocess.Popen(['feh', '--auto-zoom', '--scale-down', fPath])
+    # check if file exists in directory
+    if os.path.isfile(fPath):
+        p = subprocess.Popen('feh --auto-zoom --scale-down ' + fPath, shell=True,
+                             stdin=subprocess.PIPE)
     #subprocess.check_call(shell=True)
+    else:
+        continue
 
     while True:
         poll = p.poll()
@@ -124,7 +139,6 @@ for file in allFiles:
             #print('ENDED')
             print('NEXT')
             break
-
 
         tags = tm.get_tags_for_file(file)
         tag_names = []
@@ -138,21 +152,23 @@ for file in allFiles:
         print(f"File {fPath} has the following tags: {file_tags}")
 
 
-        user = input('''
-        * enter new or existing tag
-        * finish: ENTER
+        while True:
+            user = input('''
+* enter new tags, comma-separated
+* finish: ENTER
         ''')
 
-        if user is '':
-            p.kill()
-            break
-        else:
+            if user is '':
+                p.kill()
+                break
+            else:
             #TODO: ADD TAGs HERE!
             # first, parse tag
-            tags = user.split(",")
-            for tag in tags:
-                if tm.check_if_tag_exists(tag):
-                    pass
+                tags = user.split(",")
+                subprocess.Popen('tmsu tag ' + fPath +' ' +' '.join(tags), shell=True)
+                print(f"Added tags {' '.join(tags)} to file {fPath}")
+
+        break
 
 
         #pass
