@@ -201,11 +201,15 @@ def print_tags_for_file(file):
 def parse_user_tags(input):
     tags = input.split(",")
     tags_to_remove = []
+    tags_to_add = []
     for tag in tags:
+        tag = tag.strip()
         if tag[0] == "-":
-            tags.remove(tag)
-            tags_to_remove.append(tag)
-    return tags, tags_to_remove
+            new_tag = tag[1::]
+            tags_to_remove.append(new_tag)
+        else:
+            tags_to_add.append(tag)
+    return tags_to_add, tags_to_remove
 
 
 
