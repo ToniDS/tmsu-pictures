@@ -151,25 +151,38 @@ def main():
 
             while True:
                 user = input('''
-    * enter new tags, comma-separated
+    * enter new tags, comma-separated or enter "quit" to quit program
     * finish: ENTER
             ''')
 
                 if user is '':
                     p.kill()
                     break
+                elif user.strip() == 'quit':
+                    clean_up(tm, p)
+                    exit()
+                elif user.strip() == 'ls':
+                    current_tags = []
+                    for tag in tm.get_tags_for_file(file):
+                        current_tags.append(tag.name)
+                    print(f"""File {f_path} has the following tags:
+                          {', '.join(current_tags)}.""")
                 else:
                     tags, tags_to_remove = parse_user_tags(user)
                     if len(tags) != 0:
-                        subprocess.Popen(['tmsu', 'tag', '--', f_path, ' '.join(tags)])
+                        for tag in tags:
+                            subprocess.Popen(['tmsu', 'tag', f_path, tag],
+                                             stdin=subprocess.DEVNULL)
                         print(f"Added tags {' '.join(tags)} to file {f_path}")
                     if len(tags_to_remove) != 0:
-                        subprocess.Popen(['tmsu', 'untag', f_path,
-                                        ' '.join(tags_to_remove)])
+                        for tag in tags_to_remove:
+                            subprocess.Popen(['tmsu', 'untag', f_path, tag],
+                                             stdin=subprocess.DEVNULL)
                         print(f"""Removed tags {' '.join(tags_to_remove)} from file
                             {f_path}""")
 
             break
+    clean_up(tm, p)
 
 def pretty_print_tags(db):
     tag_cnt = 0
@@ -219,14 +232,17 @@ def parse_user_tags(input):
         #pass
     #sys.exit()
 
-def clean_up(db_connection):
+def clean_up(db_connection, feh_process):
     """Check if there's tags without a file associated to them, then remove
     them from the database."""
-    tags_to_remove=[]
+    tags_to_delete=[]
     for tag in db_connection.get_tags():
-        if len(tm.get_files_for_tag) == 0:
-            tags_to_remove.append(tag.name)
-    subprocess.Popen(['tmsu', 'delete', ' '.join(tags_to_remove)])
+        if len(tm.get_files_for_tag(tag)) == 0:
+            tags_to_delete.append(tag.name)
+    if len(tags_to_delete) >= 1:
+        for tag in tags_to_delete:
+            subprocess.Popen(['tmsu', 'delete', tag])
+    feh_process.kill()
     db_connection.close()
 
 
