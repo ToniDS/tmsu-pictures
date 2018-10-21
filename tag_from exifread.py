@@ -6,7 +6,7 @@ for filename in sys.stdin:
     file = filename.strip("\n")  # because find has delimiter newline
     with open(file, 'rb') as picture:
         tags = exifread.process_file(picture, stop_tag="Image DateTime")
-        try: 
+        try:
             time_pic_taken = tags['Image DateTime']
 
              # convert_to_datetime to get year, month and day
@@ -20,5 +20,5 @@ for filename in sys.stdin:
             day='d'+str(datetime_object.strftime('%d'))
             date=datetime_object.strftime('%Y-%m-%d')
             sys.stdout.write(f"{file}:{str(year)}:{month}:{date}:{str(day)}:{str(year_month)}\n")
-        except KeyError: 
+        except KeyError:
             print(file)
