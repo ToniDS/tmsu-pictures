@@ -3,6 +3,7 @@ import subprocess
 import time
 import sys
 import os
+import readline
 
 def clean_name(some_var):
     """ Helper function to make variables usable in SQLite queries
@@ -124,6 +125,7 @@ def main():
     print(f"The current database has {len(all_files)} files.")
     pretty_print_tags(tm)
 
+    tags_from_last=[]
     for file in all_files:
         f_path = file.get_file_path()
         #print(f_path)
@@ -148,12 +150,21 @@ def main():
                 break
 
             print_tags_for_file(file)
+            tags_assorted = []
 
             while True:
-                user = input('''
+                prompt = '''
     * enter new tags, comma-separated or enter "quit" to quit program
+    * or enter ls to see a list of tags for file
     * finish: ENTER
-            ''')
+            '''
+                if tags_from_last == []:
+                    user = input(prompt)
+                else:
+                    user = rlinput(prompt, prefill=', '.join(tags_from_last))
+                    tags_from_last = []
+
+
 
                 if user is '':
                     p.kill()
@@ -169,18 +180,23 @@ def main():
                           {', '.join(current_tags)}.""")
                 else:
                     tags, tags_to_remove = parse_user_tags(user)
+                    tags_assorted.extend(tags)
                     if len(tags) != 0:
                         for tag in tags:
                             subprocess.Popen(['tmsu', 'tag', f_path, tag],
-                                             stdin=subprocess.DEVNULL)
+                                             stdin=subprocess.DEVNULL,
+                                             stdout=subprocess.DEVNULL,
+                                             stderr=subprocess.DEVNULL)
                         print(f"Added tags {' '.join(tags)} to file {f_path}")
                     if len(tags_to_remove) != 0:
                         for tag in tags_to_remove:
                             subprocess.Popen(['tmsu', 'untag', f_path, tag],
-                                             stdin=subprocess.DEVNULL)
+                                             stdin=subprocess.DEVNULL,
+                                             stdout=subprocess.DEVNULL,
+                                             stderr=subprocess.DEVNULL)
                         print(f"""Removed tags {' '.join(tags_to_remove)} from file
                             {f_path}""")
-
+            tags_from_last = tags_assorted
             break
     clean_up(tm, p)
 
@@ -225,7 +241,12 @@ def parse_user_tags(input):
     return tags_to_add, tags_to_remove
 
 
-
+def rlinput(prompt, prefill=''):
+   readline.set_startup_hook(lambda: readline.insert_text(prefill))
+   try:
+      return input(prompt)
+   finally:
+      readline.set_startup_hook()
 
 
 
@@ -244,6 +265,7 @@ def clean_up(db_connection, feh_process):
             subprocess.Popen(['tmsu', 'delete', tag])
     feh_process.kill()
     db_connection.close()
+
 
 
 #sql_command = """INSERT INTO employee (staff_number, fname, lname, gender, birth_date)
