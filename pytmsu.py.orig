@@ -4,7 +4,10 @@ import time
 import sys
 import os
 import readline
-import damlev
+<<<<<<< HEAD
+
+=======
+>>>>>>> 4385c6fe9ae3111243778418c2f8926320d71144
 
 def clean_name(some_var):
     """ Helper function to make variables usable in SQLite queries
@@ -122,10 +125,6 @@ tm = tmsu_connect()
 ##print(tm.get_all_files())
 def main():
     tm = tmsu_connect()
-    all_tagnames = []
-    for tag in tm.get_tags():
-        all_tagnames.append(tag.name)
-
     all_files = tm.get_all_files()
     print(f"The current database has {len(all_files)} files.")
     pretty_print_tags(tm)
@@ -188,14 +187,6 @@ def main():
                     tags_assorted.extend(tags)
                     if len(tags) != 0:
                         for tag in tags:
-                            suggestion = spellcheck(tag, all_tagnames)
-                            if suggestion:
-                                prompt = f"""Did you mean the following tag? {suggestion}
-                                        y/n
-                                        """
-                                answer = input(prompt)
-                                if answer == 'yes' or answer == 'y':
-                                    tag = suggestion
                             subprocess.Popen(['tmsu', 'tag', f_path, tag],
                                              stdin=subprocess.DEVNULL,
                                              stdout=subprocess.DEVNULL,
@@ -260,19 +251,6 @@ def rlinput(prompt, prefill=''):
       return input(prompt)
    finally:
       readline.set_startup_hook()
-
-def spellcheck(tag, all_tags):
-    distance = []
-    for spelling in all_tags:
-        distance.append(damlev.damerau_levenstein_distance(tag, spelling))
-    possible_tags = {}
-    for i in range(len(distance)):
-        if distance[i] <= 2:
-            possible_tags[all_tags[i]]= distance[i]
-    suggestions = sorted(possible_tags, key=possible_tags.get)
-    if len(suggestions) >= 1:
-        return suggestions[0]
-
 
 
 
