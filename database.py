@@ -2,7 +2,7 @@ import sqlite3
 import helpers
 
 
-class tmsu_connect():
+class TmsuConnect():
     def __init__(self):
         self.connection = sqlite3.connect(".tmsu/db")
         self.cursor = self.connection.cursor()
@@ -12,11 +12,10 @@ class tmsu_connect():
         result = self.cursor.fetchall()
         tags = []
         for row in result:
-            tags.append(tmsu_tag(row))
+            tags.append(TmsuTag(row))
         return tags
 
     def get_file_info(self, filename):
-        # id =
         pass
 
     def get_all_files(self):
@@ -24,7 +23,7 @@ class tmsu_connect():
         res = self.cursor.fetchall()
         all_files = []
         for row in res:
-            all_files.append(tmsu_file(row))
+            all_files.append(TmsuFile(row))
         return all_files
 
     def check_if_tag_exists(self, new_tag):
@@ -35,8 +34,8 @@ class tmsu_connect():
         return res != NULL
 
     def get_tags_for_file(self, file):
-        """Takes a database connection and a tmsu_file object,
-        returns a list of tmsu_tag objects associated with this file."""
+        """Takes a database connection and a TmsuFile object,
+        returns a list of TmsuTag objects associated with this file."""
 
         file_id = helpers.clean_name(file.id)
 
@@ -50,7 +49,7 @@ class tmsu_connect():
         res = self.cursor.fetchall()
         tags_for_file = []
         for row in res:
-            tags_for_file.append(tmsu_tag(row))
+            tags_for_file.append(TmsuTag(row))
         return tags_for_file
 
     def get_files_for_tag(self, tag):
@@ -79,7 +78,7 @@ class tmsu_connect():
         self.connection.close()
 
 
-class tmsu_file():
+class TmsuFile():
     def __init__(self, db_row):
         self.id = db_row[0]
         self.directory = db_row[1]
@@ -92,15 +91,10 @@ class tmsu_file():
     def get_file_path(self):
         return self.directory + '/' + self.name
 
-class tmsu_tag():
+
+class TmsuTag():
     def __init__(self, db_row):
         self.id = db_row[0]
         self.name = db_row[1]
-
-class tmsu_file_tag():
-    def __init__(self, db_row):
-        self.file_id = db_row[0]
-        self.tag_id = db_row[1]
-        self.value_id = db_row[2]
 
 

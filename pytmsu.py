@@ -10,13 +10,13 @@ import helpers
 import speller
 
 def main():
-    tm = db.tmsu_connect()
+    tm = db.TmsuConnect()
     all_tagnames = []
     for tag in tm.get_tags():
         all_tagnames.append(tag.name)
 
     all_files = tm.get_all_files()
-    print(f"The current database has {len(all_files)} files.")
+    print(f"The current database has { len(all_files) } files.")
     pretty_print_tags(tm)
 
     tags_from_last=[]
