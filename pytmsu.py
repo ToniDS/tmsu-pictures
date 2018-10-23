@@ -195,7 +195,9 @@ def main():
                                         """
                                 answer = input(prompt)
                                 if answer == 'yes' or answer == 'y':
+                                    tags.remove(tag)
                                     tag = suggestion
+                                    tags.append(tag)
                             subprocess.Popen(['tmsu', 'tag', f_path, tag],
                                              stdin=subprocess.DEVNULL,
                                              stdout=subprocess.DEVNULL,
@@ -265,6 +267,8 @@ def spellcheck(tag, all_tags):
     distance = []
     for spelling in all_tags:
         distance.append(damlev.damerau_levenstein_distance(tag, spelling))
+    if 0 in distance:
+        return []
     possible_tags = {}
     for i in range(len(distance)):
         if distance[i] <= 2:
