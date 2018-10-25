@@ -1,9 +1,0 @@
-#ignore JPG
-*.JPG
-*.jpg
-
-#ignore orig
-*.orig
-
-#ignore hidden files
-.*
