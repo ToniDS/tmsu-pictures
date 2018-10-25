@@ -44,7 +44,7 @@ def clean_up(db_connection, feh_process):
     if len(tags_to_delete) >= 1:
         for tag in tags_to_delete:
             subprocess.Popen(['tmsu', 'delete', tag])
-    feh_process.kill()
+    feh_process.terminate()
 
 
 def pretty_print_tags(db_connection):
