@@ -34,13 +34,15 @@ def main():
         else:
             continue
 
+
+        helpers.print_tags_for_file(tm, file)
+
         while True:
             #if poll:
                 # print('ENDED')
              #   print('NEXT')
               #  break
 
-            helpers.print_tags_for_file(tm, file)
 
             # while True get input
             user = get_input(tags_from_last)

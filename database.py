@@ -27,8 +27,7 @@ class TmsuConnect():
         return all_files
 
     def check_if_tag_exists(self, new_tag):
-        new_tag = helpers.clean_name(new_tag)
-        self.cursor.execute(f"SELECT {new_tag} from tag")
+        self.cursor.execute(f"SELECT ? from tag;", (new_tag,))
         res = self.cursor.fetchall()
         #print(res)
         return res != NULL
@@ -36,15 +35,13 @@ class TmsuConnect():
     def get_tags_for_file(self, file):
         """Takes a database connection and a TmsuFile object,
         returns a list of TmsuTag objects associated with this file."""
-
-        file_id = helpers.clean_name(file.id)
-
+        fileid = file.id
         self.cursor.execute(f"""
                             SELECT tag.id, tag.name
                             FROM file_tag
                             INNER JOIN tag
                             ON file_tag.tag_id = tag.id
-                            WHERE file_id = {file_id}""")
+                            WHERE file_id = ? ;""", (file.id, ))
 
         res = self.cursor.fetchall()
         tags_for_file = []
@@ -54,13 +51,12 @@ class TmsuConnect():
 
     def get_files_for_tag(self, tag):
         tag_id = helpers.clean_name(tag.id)
-
         self.cursor.execute(f"""
                             SELECT file_tag.file_id
                             FROM file_tag
                             INNER JOIN tag
                             ON file_tag.tag_id = tag.id
-                            WHERE tag_id = {tag_id}""")
+                            WHERE tag_id = ?;""", (tag.id, ))
         res = self.cursor.fetchall()
         files_for_tag = []
         for row in res:
