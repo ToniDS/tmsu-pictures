@@ -1,0 +1,5 @@
+#ignore JPG
+*.JPG
+
+#ignore orig
+*.orig
