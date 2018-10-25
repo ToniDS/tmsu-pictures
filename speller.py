@@ -38,7 +38,7 @@ def spellcheck(tag, all_tags):
     possible_tags = {}
     for i in range(len(distance)):
         if distance[i] <= 2:
-            possible_tags[all_tags[i]]= distance[i]
+            possible_tags[all_tags[i]] = distance[i]
     suggestions = sorted(possible_tags, key=possible_tags.get)
     if len(suggestions) >= 1:
         return suggestions[0]

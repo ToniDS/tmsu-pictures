@@ -45,3 +45,31 @@ def clean_up(db_connection, feh_process):
         for tag in tags_to_delete:
             subprocess.Popen(['tmsu', 'delete', tag])
     feh_process.kill()
+
+
+def pretty_print_tags(db_connection):
+    tag_cnt = 0
+    tag_string = ''
+    for tag in db_connection.get_tags():
+        tag_cnt += 1
+
+        tag_string += tag.name + '    '
+        if tag_cnt >= 5:
+            print(tag_string)
+            tag_cnt = 0
+            tag_string = ''
+
+
+def print_tags_for_file(db_connection, file):
+    f_path = file.get_file_path()
+    tags = db_connection.get_tags_for_file(file)
+    tag_names = []
+    # print(tags)
+    for tag in tags:
+        # print(tag.id)
+        tag_names.append(tag.name)
+
+    file_tags= ', '.join(tag_names)
+
+    print(f"File {f_path} has the following tags: {file_tags}")
+
