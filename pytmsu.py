@@ -61,7 +61,7 @@ def main():
 
 
                 if user is '':
-                    p.kill()
+                    p.terminate()
                     break
                 elif user.strip() == 'quit':
                     helpers.clean_up(tm, p)
@@ -75,12 +75,12 @@ def main():
                 else:
                     tags, tags_to_remove = helpers.parse_user_tags(user)
                     tags_assorted.extend(tags)
-                    if len(tags) != 0:
+                    if tags:
                         for tag in tags:
                             suggestion = speller.spellcheck(tag, all_tagnames)
                             if suggestion:
                                 prompt = f"""Did you mean the following tag? {suggestion}
-                                        y/n
+                                        y/N
                                         """
                                 answer = input(prompt)
                                 if answer == 'yes' or answer == 'y':
@@ -92,15 +92,15 @@ def main():
                                              stdout=subprocess.DEVNULL,
                                              stderr=subprocess.DEVNULL)
                         print(f"Added tags {' '.join(tags)} to file {f_path}")
-                    if len(tags_to_remove) != 0:
+                    if tags_to_remove:
                         for tag in tags_to_remove:
                             subprocess.Popen(['tmsu', 'untag', f_path, tag],
                                              stdin=subprocess.DEVNULL,
                                              stdout=subprocess.DEVNULL,
                                              stderr=subprocess.DEVNULL)
-                        print(f"""Removed tags {' '.join(tags_to_remove)} from file
-                            {f_path}""")
+                        print(f"""Removed tags {' '.join(tags_to_remove)} from file {f_path}""")
             tags_from_last = tags_assorted
+            # break out of while-loop showing the inputs
             break
     helpers.clean_up(tm, p)
     exit()

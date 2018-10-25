@@ -15,7 +15,9 @@ def parse_user_tags(input):
     tags_to_add = []
     for tag in tags:
         tag = tag.strip()
-        if tag[0] == "-":
+        if not tag:
+            continue
+        if tag.startswith("-"):
             new_tag = tag[1::]
             tags_to_remove.append(new_tag)
         else:
