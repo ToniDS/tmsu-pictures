@@ -30,34 +30,20 @@ def main():
         # check if file exists in directory
         if os.path.isfile(f_path):
             p = subprocess.Popen(['feh', '--auto-zoom', '--scale-down',
-                                  f_path], stdin=subprocess.PIPE)
+                                 f_path], stdin=subprocess.PIPE)
         else:
             continue
 
-
         helpers.print_tags_for_file(tm, file)
-
         while True:
-            #if poll:
-                # print('ENDED')
-             #   print('NEXT')
-              #  break
-
-
-            # while True get input
             user = get_input(tags_from_last)
-
-            # process input
             processed_input = process_input(user, p, file, tm)
             if not processed_input:
                 p.terminate()
                 break
             else:
                 tags, tags_to_remove = processed_input
-
-            # add tags
             add_tags(tags, tags_assorted, all_tagnames, f_path)
-            # remove tags
             remove_tags(tags_to_remove, f_path)
 
         tags_from_last = tags_assorted
@@ -102,6 +88,9 @@ def process_input(input, feh_process, file, db):
 
 
 def add_tags(tags, tags_assorted, all_tagnames, filepath):
+    """
+    Method that adds {tags} to file
+    """
     if tags:
         for tag in tags:
             suggestion = speller.spellcheck(tag, all_tagnames)
@@ -129,7 +118,7 @@ def remove_tags(tags_to_remove, filepath):
                              stdin=subprocess.DEVNULL,
                              stdout=subprocess.DEVNULL,
                              stderr=subprocess.DEVNULL)
-        print(f"""Removed tags {' '.join(tags_to_remove)} from file {filepath}""")
+        print(f"Removed tags {' '.join(tags_to_remove)} from file {filepath}")
 
 
 if __name__ == "__main__":
