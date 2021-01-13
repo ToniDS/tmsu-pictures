@@ -36,14 +36,14 @@ def rlinput(prompt, prefill=''):
 def clean_up(db_connection, feh_process):
     """Check if there's tags without a file associated to them, then remove
     them from the database."""
-    tags_to_delete = []
-    for tag in db_connection.get_tags():
-        if len(db_connection.get_files_for_tag(tag)) == 0:
-            tags_to_delete.append(tag.name)
+    #tags_to_delete = []
+    #for tag in db_connection.get_tags():
+    #    if len(db_connection.get_files_for_tag(tag)) == 0:
+    #        tags_to_delete.append(tag.name)
+    #if len(tags_to_delete) >= 1:
+    #    for tag in tags_to_delete:
+    #        subprocess.Popen(['tmsu', 'delete', tag])
     db_connection.close()
-    if len(tags_to_delete) >= 1:
-        for tag in tags_to_delete:
-            subprocess.Popen(['tmsu', 'delete', tag])
     feh_process.terminate()
 
 
@@ -68,8 +68,10 @@ def print_tags_for_file(db_connection, file):
     for tag in tags:
         # print(tag.id)
         tag_names.append(tag.name)
-
+    if not tag_names: 
+        return False
     file_tags= ', '.join(tag_names)
 
     print(f"File {f_path} has the following tags: {file_tags}")
+    return True
 

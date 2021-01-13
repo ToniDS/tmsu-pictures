@@ -1,5 +1,6 @@
 import sqlite3
 import helpers
+import os
 
 
 class TmsuConnect():
@@ -49,18 +50,51 @@ class TmsuConnect():
             tags_for_file.append(TmsuTag(row))
         return tags_for_file
 
-    def get_files_for_tag(self, tag):
-        tag_id = helpers.clean_name(tag.id)
-        self.cursor.execute(f"""
-                            SELECT file_tag.file_id
-                            FROM file_tag
-                            INNER JOIN tag
-                            ON file_tag.tag_id = tag.id
-                            WHERE tag_id = ?;""", (tag.id, ))
+    def get_files_for_tag(self, tag, tags_to_exclude=None):
+        if isinstance(tag, str):
+            tag_name = helpers.clean_name(tag)
+        elif isinstance(tag, TmsuTag):
+            tag_name = helpers.clean_name(tag.name)
+        for i, tag in enumerate(tags_to_exclude): 
+            if isinstance(tags_to_exclude, str):
+                tags_to_exclude[i] = helpers.clean_name(tag)
+        if not tags_to_exclude: 
+            self.cursor.execute(f"""
+                            WITH FILEID AS (
+                                SELECT file_tag.file_id
+                                    FROM file_tag
+                                    INNER JOIN tag
+                                    ON file_tag.tag_id = tag.id
+                                    WHERE name = ?)
+                            SELECT file.id, directory, name, 
+                                fingerprint, mod_time, size, is_dir
+                                FROM file INNER JOIN FILEID on 
+                                file.id = FILEID.file_id;""", 
+                                (tag_name,))
+        else: 
+            tags = [tag_name] + tags_to_exclude
+            self.cursor.execute(f"""
+                            WITH fileid AS (
+                                SELECT file_tag.file_id
+                                    FROM file_tag
+                                    INNER JOIN tag
+                                    ON file_tag.tag_id = tag.id
+                                    WHERE name = ?),
+                            exclude AS (
+                                SELECT file_tag.file_id
+                                    FROM file_tag
+                                    INNER JOIN tag
+                                    ON file_tag.tag_id = tag.id
+                                    WHERE name in ({",".join(['?']*len(tags_to_exclude))}))
+                            SELECT file.id, directory, name, 
+                                fingerprint, mod_time, size, is_dir
+                                FROM file INNER JOIN (SELECT * FROM fileid EXCEPT SELECT * FROM exclude) AS files on 
+                                file.id = files.file_id;""", 
+                                (tags))
         res = self.cursor.fetchall()
         files_for_tag = []
         for row in res:
-            files_for_tag.append(row)
+            files_for_tag.append(TmsuFile(row))
         return files_for_tag
 
     def add_new_tag(self, tag):
@@ -72,6 +106,19 @@ class TmsuConnect():
     def close(self):
         self.connection.commit()
         self.connection.close()
+
+    def check_if_file_in_db(self, filepath): 
+        self.cursor.execute("SELECT * FROM file WHERE is_dir = 0")
+        res = self.cursor.fetchall()
+        for picture in res: 
+            tm_file = TmsuFile(picture)
+            if filepath == tm_file.get_file_path():
+                return True
+        return False
+
+
+
+
 
 
 class TmsuFile():
@@ -85,7 +132,7 @@ class TmsuFile():
         self.is_dir = db_row[6]
 
     def get_file_path(self):
-        return self.directory + '/' + self.name
+        return os.path.join(self.directory, self.name)
 
 
 class TmsuTag():

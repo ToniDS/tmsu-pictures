@@ -31,6 +31,7 @@ def test():
 
 def spellcheck(tag, all_tags):
     distance = []
+    all_tags = list(all_tags)
     for spelling in all_tags:
         distance.append(damerau_levenstein_distance(tag, spelling))
     if 0 in distance:
