@@ -61,12 +61,6 @@ def main():
 
         helpers.print_tags_for_file(tm, file)
         
-
-        #one-time: enter edited_date
-        now = datetime.datetime.now()
-        add_tags([f"edit-date={now.strftime('%Y-%m-%d')}"], f_path)
-
-
         while True:
             user = get_input(tags_from_last)
             processed_input = process_input(user, p, file, tm, tags_assorted, all_tagnames)
@@ -79,6 +73,9 @@ def main():
             for tag in tags: 
                 all_tagnames.add(tag)
             remove_tags(tags_to_remove, f_path)
+
+        now = datetime.datetime.now()
+        add_tags([f"edit-date={now.strftime('%Y-%m-%d')}"], f_path)
 
         tags_from_last = tags_assorted
         
