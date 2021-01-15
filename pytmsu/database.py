@@ -1,5 +1,5 @@
 import sqlite3
-import helpers
+from . import helpers
 import os
 
 
@@ -53,11 +53,12 @@ class TmsuConnect():
     def get_files_for_tag(self, tag, tags_to_exclude=None):
         if isinstance(tag, str):
             tag_name = helpers.clean_name(tag)
-        elif isinstance(tag, TmsuTag):
+        else:
             tag_name = helpers.clean_name(tag.name)
-        for i, tag in enumerate(tags_to_exclude): 
-            if isinstance(tags_to_exclude, str):
-                tags_to_exclude[i] = helpers.clean_name(tag)
+        if tags_to_exclude: 
+            for i, tag in enumerate(tags_to_exclude): 
+                if isinstance(tags_to_exclude, str):
+                    tags_to_exclude[i] = helpers.clean_name(tag)
         if not tags_to_exclude: 
             self.cursor.execute(f"""
                             WITH FILEID AS (

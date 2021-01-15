@@ -4,10 +4,7 @@ import time
 import sys
 import os
 import readline
-import damlev
-import database as db
-import helpers
-import speller
+from . import damlev, speller, helpers, database as db
 import argparse
 import re
 from glob import glob
@@ -22,6 +19,7 @@ def main():
     parser.add_argument("--tag", type=str, default=None, 
     help='Provide an optional tag')
     parser.add_argument("--exclude", type=str, default=None, nargs = "+")
+    parser.add_argument("--all", dest='accumulate', )
     args = parser.parse_args()
     path = os.path.join("/home/toni", args.folder)
     search_tag = args.tag
@@ -34,7 +32,7 @@ def main():
         all_tagnames.add(tag.name)
     folder = "Bilder_Kindheit" 
     #set_up_database(tm, path, folder)
-    if tag: 
+    if search_tag: 
         all_files = tm.get_files_for_tag(search_tag, exclude_tag)
     else: 
         all_files = tm.get_all_files()
@@ -103,7 +101,6 @@ def get_input(tags_from_last):
 
 def process_input(input, feh_process, file, db, tags_assorted, all_tagnames):
     filepath = file.get_file_path()
-    now = datetime.datetime.now()
     if input == '':
         return
     elif input.strip() == 'quit':
