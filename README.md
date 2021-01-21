@@ -9,6 +9,6 @@ tag_from exifread.py and tag_from_exif.sh create the date tags from exif tags.
 
 pytmsu is a CLI for tagging my pictures up. It automatically detects the tmsu database, reads all the existing tags, and allows me to tag my pictures, automatically bringing the next file.
 
-You can invoke pytmsu with the top-level folder where all the pictures are. By default, it will show you those pictures within there that have not been tagged using pytmsu before. If you do want all the pictures, invoke it with --all. 
+You can invoke pytmsu with the top-level folder where all the pictures are. By default, it will show you all the pictures. You can filter using --tag and --exclude. 
 
 Attribution to bison--,who helped me significantly with this code!
