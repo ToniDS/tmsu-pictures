@@ -19,8 +19,17 @@ class TmsuConnect():
     def get_file_info(self, filename):
         pass
 
-    def get_all_files(self):
-        self.cursor.execute("SELECT * FROM file WHERE is_dir = 0")
+    def get_all_files(self, all_times=True):
+        if all_times: 
+            self.cursor.execute("SELECT * FROM file WHERE is_dir = 0")
+        else: 
+            self.cursor.execute(f"""WITH exclude AS (
+                                SELECT file_id 
+                                FROM file_tag 
+                                WHERE value_id IN (SELECT id FROM value)) 
+                                SELECT * 
+                                FROM file
+                                WHERE is_dir = 0 AND id NOT IN exclude""")
         res = self.cursor.fetchall()
         all_files = []
         for row in res:
@@ -99,10 +108,10 @@ class TmsuConnect():
         return files_for_tag
 
     def add_new_tag(self, tag):
-        pass
+        raise NotImplementedError
 
     def add_new_tag_to_file(self, tag, file):
-        pass
+        raise NotImplementedError
 
     def close(self):
         self.connection.commit()
