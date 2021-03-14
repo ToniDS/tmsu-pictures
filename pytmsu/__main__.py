@@ -7,6 +7,7 @@ import readline
 from . import damlev, speller, helpers
 from .database import TmsuConnect
 from .ProcessedInput import ProcessedInput
+from .TagManager import TagManager
 import argparse
 import re
 from glob import glob
@@ -36,10 +37,7 @@ def main():
     os.chdir(path)
     
     tm = TmsuConnect()
-    all_tagnames = set()
     
-    for tag in tm.get_tags():
-        all_tagnames.add(tag.name)
     #folder = "Bilder_Kindheit" 
     #set_up_database(tm, path, folder)
     if search_tag: 
@@ -70,7 +68,7 @@ def main():
         helpers.print_tags_for_file(tm, tmsu_file)
         
         while True:
-            user = get_input(tags_from_last      )
+            user = get_input(tags_from_last)
             processed_input = process_input(user, tmsu_file)
             if processed_input.state == ProcessedInput.STATE_NEXT_IMAGE:
                 viewer_process.terminate()
@@ -84,8 +82,6 @@ def main():
             elif processed_input.state == ProcessedInput.STATE_MODIFY_TAGS:
                 tags_to_add, tags_to_remove = processed_input.get_tags()
                 add_tags(tags_to_add, f_path, tags_assorted, all_tagnames)
-                for tag in tags_to_add: 
-                    all_tagnames.add(tag)
                 remove_tags(tags_to_remove, f_path)
             else: 
                 raise Exception(f"Unknown state: {processed_input.state}")
@@ -135,7 +131,6 @@ def process_input(user_input, tmsu_file):
     return processed_input
 
 
-
 def print_tags_for_file(db, tmsu_file):
     """Prints the tags already assigned to file in the database."""
     current_tags = []
@@ -143,6 +138,7 @@ def print_tags_for_file(db, tmsu_file):
         current_tags.append(tag.name)
     print(f"""File {tmsu_file.get_file_path()} has the following tags:
 {', '.join(current_tags)}.""")
+
 
 def add_tags(tags, filepath, tags_assorted = None, all_tagnames = None):
     """
