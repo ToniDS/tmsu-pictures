@@ -4,9 +4,7 @@ class ProcessedInput():
     STATE_LIST_TAGS = 1
     STATE_MODIFY_TAGS = 2
     STATE_EXIT = 3
+
     def __init__(self):
         self.state = ProcessedInput.STATE_NOT_SET
-       
-
-    def get_tags(self):
-        return self.tags_to_add, self.tags_to_remove
+        self.user_input = None

@@ -1,3 +1,7 @@
+from . import speller
+import subprocess
+
+
 class TagManager():
     def __init__(self, tm):
         self.tags_to_add = []
@@ -35,46 +39,51 @@ class TagManager():
 
     def manage(self, filepath, user_input):
         self.parse_user_tags(user_input)
-        self.add_tags(filepath) 
+        self.add_tags(filepath)
         self.remove_tags(filepath)
 
-    def add_tags(self, filepath, tags_assorted = None, all_tagnames = None):
+    def add_tags(self, filepath):
         """
         Method that adds {tags} to file
         """
-        if tags_assorted is None: 
-            tags_assorted = []
-        if all_tagnames is None:
-            all_tagnames = set()
-        #Option
-        if not tags: 
+        if not self.tags_to_add:
             return
-        for tag in tags:
-            suggestion = speller.spellcheck(tag, all_tagnames)
+
+        for tag in self.tags_to_add:
+            suggestion = speller.spellcheck(tag, self.all_tagnames)
             if suggestion:
                 prompt = f"""Did you mean the following tag? {suggestion}
                         y/N
                         """
                 answer = input(prompt)
                 if answer in ['yes', 'y']:
-                    tags.remove(tag)
+                    self.tags_to_add.remove(tag)
                     tag = suggestion
-                    tags.append(tag)
-            subprocess.Popen(['tmsu', 'tag', filepath, tag],
-                                stdin=subprocess.DEVNULL,
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL)
-        print(f"Added tags {' '.join(tags)} to file {filepath}")
-        for tag in tags: 
+                    self.tags_to_add.append(tag)
+            subprocess.Popen(
+                ['tmsu', 'tag', filepath, tag],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+
+        print(f"Added tags {' '.join(self.tags_to_add)} to file {filepath}")
+        for tag in self.tags_to_add:
             if "edit-date" not in tag:
-                tags_assorted.append(tag)
+                self.tags_assorted.add(tag)
 
+        self.tags_to_add = []
 
-    def remove_tags(tags_to_remove: list, filepath: str):
-        if tags_to_remove:
-            for tag in tags_to_remove:
-                subprocess.Popen(['tmsu', 'untag', filepath, tag],
-                                stdin=subprocess.DEVNULL,
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL)
-            print(f"Removed tags {' '.join(tags_to_remove)} from file {filepath}")
+    def remove_tags(self, filepath: str):
+        if self.tags_to_remove:
+            for tag in self.tags_to_remove:
+                subprocess.Popen(
+                    ['tmsu', 'untag', filepath, tag],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+
+            print(f"Removed tags {' '.join(self.tags_to_remove)} from file {filepath}")
+
+        self.tags_to_remove = []
