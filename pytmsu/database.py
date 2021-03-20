@@ -45,12 +45,15 @@ class TmsuConnect():
     def get_tags_for_file(self, file):
         """Takes a database connection and a TmsuFile object,
         returns a list of TmsuTag objects associated with this file."""
-        self.cursor.execute("""
-                            SELECT DISTINCT tag.id, tag.name
-                            FROM file_tag
-                            INNER JOIN tag
-                            ON file_tag.tag_id = tag.id
-                            WHERE file_id = ? ;""", (file.id, ))
+        self.cursor.execute(
+            """
+            SELECT DISTINCT tag.id, tag.name
+            FROM file_tag
+            INNER JOIN tag
+            ON file_tag.tag_id = tag.id
+            WHERE file_id = ? AND tag.name <> 'edit-date';""",
+            (file.id, )
+        )
 
         res = self.cursor.fetchall()
         tags_for_file = []
@@ -112,6 +115,26 @@ class TmsuConnect():
         for row in res:
             files_for_tag.append(TmsuFile(row))
         return files_for_tag
+
+    def get_latest_edit_date(self, file):
+        self.cursor.execute(
+            """
+            SELECT value.name
+            FROM file_tag
+            INNER JOIN tag
+            ON file_tag.tag_id = tag.id
+            INNER JOIN value
+            ON file_tag.value_id = value.id
+            WHERE file_id = ? AND tag.name = 'edit-date'
+            ORDER BY value.name DESC
+            LIMIT 1;""",
+            (file.id, )
+        )
+        res = self.cursor.fetchone()
+        if not res:
+            return None
+        return res[0]
+
 
     def add_new_tag(self, tag):
         raise NotImplementedError

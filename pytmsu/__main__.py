@@ -73,6 +73,7 @@ def main():
                 break
             elif processed_input.state == ProcessedInput.STATE_LIST_TAGS:
                 print_tags_for_file(tm, tmsu_file)
+                print_edit_date(tm, tmsu_file)
                 continue
             elif processed_input.state == ProcessedInput.STATE_EXIT:
                 helpers.clean_up(tm, viewer_process)
@@ -139,6 +140,13 @@ def print_tags_for_file(db, tmsu_file):
         current_tags.append(tag.name)
     print(f"""File {tmsu_file.get_file_path()} has the following tags:
 {', '.join(current_tags)}.""")
+
+
+def print_edit_date(tm, tmsu_file):
+    """Prints the newest edit date fo file if edit_date is set."""
+    edit_date = tm.get_latest_edit_date(tmsu_file)
+    if edit_date:
+        print(f"edit-date: {edit_date}")
 
 
 def add_tags(tags, filepath, tags_assorted=None, all_tagnames=None):
