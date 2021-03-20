@@ -20,14 +20,14 @@ class TmsuConnect():
         pass
 
     def get_all_files(self, all_times=True):
-        if all_times: 
+        if all_times:
             self.cursor.execute("SELECT * FROM file WHERE is_dir = 0")
-        else: 
+        else:
             self.cursor.execute("""WITH exclude AS (
-                                SELECT file_id 
-                                FROM file_tag 
-                                WHERE value_id IN (SELECT id FROM value)) 
-                                SELECT * 
+                                SELECT file_id
+                                FROM file_tag
+                                WHERE value_id IN (SELECT id FROM value))
+                                SELECT *
                                 FROM file
                                 WHERE is_dir = 0 AND id NOT IN exclude""")
         res = self.cursor.fetchall()
@@ -46,7 +46,7 @@ class TmsuConnect():
         """Takes a database connection and a TmsuFile object,
         returns a list of TmsuTag objects associated with this file."""
         self.cursor.execute("""
-                            SELECT tag.id, tag.name
+                            SELECT DISTINCT tag.id, tag.name
                             FROM file_tag
                             INNER JOIN tag
                             ON file_tag.tag_id = tag.id
@@ -63,11 +63,11 @@ class TmsuConnect():
             tag_name = helpers.clean_name(tag)
         else:
             tag_name = helpers.clean_name(tag.name)
-        if tags_to_exclude: 
-            for i, tag in enumerate(tags_to_exclude): 
+        if tags_to_exclude:
+            for i, tag in enumerate(tags_to_exclude):
                 if isinstance(tags_to_exclude, str):
                     tags_to_exclude[i] = helpers.clean_name(tag)
-        if not tags_to_exclude: 
+        if not tags_to_exclude:
             self.cursor.execute("""
                             WITH FILEID AS (
                                 SELECT file_tag.file_id
@@ -75,12 +75,12 @@ class TmsuConnect():
                                     INNER JOIN tag
                                     ON file_tag.tag_id = tag.id
                                     WHERE name = ?)
-                            SELECT file.id, directory, name, 
+                            SELECT file.id, directory, name,
                                 fingerprint, mod_time, size, is_dir
-                                FROM file INNER JOIN FILEID on 
-                                file.id = FILEID.file_id;""", 
+                                FROM file INNER JOIN FILEID on
+                                file.id = FILEID.file_id;""",
                                 (tag_name,))
-        else: 
+        else:
             tags = [tag_name] + tags_to_exclude
             self.cursor.execute(f"""
                             WITH fileid AS (
@@ -99,7 +99,7 @@ class TmsuConnect():
                                     ({",".join(['?']*len(tags_to_exclude))})
                             )
 
-                            SELECT file.id, directory, name, 
+                            SELECT file.id, directory, name,
                                 fingerprint, mod_time, size, is_dir
                                 FROM file INNER JOIN (
                                     SELECT * FROM fileid EXCEPT
@@ -123,10 +123,10 @@ class TmsuConnect():
         self.connection.commit()
         self.connection.close()
 
-    def check_if_file_in_db(self, filepath): 
+    def check_if_file_in_db(self, filepath):
         self.cursor.execute("SELECT * FROM file WHERE is_dir = 0")
         res = self.cursor.fetchall()
-        for picture in res: 
+        for picture in res:
             tm_file = TmsuFile(picture)
             if filepath == tm_file.get_file_path():
                 return True

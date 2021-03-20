@@ -18,7 +18,7 @@ def main():
                         help='Provide an optional tag')
     parser.add_argument("--exclude", type=str, default=None,
                         nargs="+")
-    parser.add_argument("--all")
+    parser.add_argument("--all", action='store_true')
 
     args = parser.parse_args()
     if args.all:
