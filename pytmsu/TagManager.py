@@ -60,7 +60,7 @@ class TagManager():
                     self.tags_to_add.remove(tag)
                     tag = suggestion
                     self.tags_to_add.append(tag)
-            subprocess.Popen(
+            subprocess.run(
                 ['tmsu', 'tag', filepath, tag],
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
@@ -77,7 +77,7 @@ class TagManager():
     def remove_tags(self, filepath: str):
         if self.tags_to_remove:
             for tag in self.tags_to_remove:
-                subprocess.Popen(
+                subprocess.run(
                     ['tmsu', 'untag', filepath, tag],
                     stdin=subprocess.DEVNULL,
                     stdout=subprocess.DEVNULL,

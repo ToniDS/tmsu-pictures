@@ -1,7 +1,7 @@
 import subprocess
 import sys
 import os
-from . import speller, helpers
+from . import helpers
 from .database import TmsuConnect
 from .ProcessedInput import ProcessedInput
 from .TagManager import TagManager
@@ -161,38 +161,21 @@ def print_edit_date(tm, tmsu_file):
         print(f"edit-date: {edit_date}")
 
 
-def add_tags(tags, filepath, tags_assorted=None, all_tagnames=None):
+def add_tags(tags, filepath):
     """
     Method that adds {tags} to file
     """
-    if tags_assorted is None:
-        tags_assorted = []
-    if all_tagnames is None:
-        all_tagnames = set()
 
     if not tags:
         return
-    for tag in tags:
-        suggestion = speller.spellcheck(tag, all_tagnames)
-        if suggestion:
-            prompt = f"""Did you mean the following tag? {suggestion}
-                    y/N
-                    """
-            answer = input(prompt)
-            if answer in ['yes', 'y']:
-                tags.remove(tag)
-                tag = suggestion
-                tags.append(tag)
-        subprocess.Popen(
-            ['tmsu', 'tag', filepath, tag],
+    args = ['tmsu', 'tag', filepath] + tags
+    subprocess.run(
+            args,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
         )
     print(f"Added tags {' '.join(tags)} to file {filepath}")
-    for tag in tags:
-        if "edit-date" not in tag:
-            tags_assorted.append(tag)
 
 
 def remove_tags(tags_to_remove: list, filepath: str):
@@ -212,12 +195,12 @@ def split(filepath: str):
 
 
 def create_tag_from_folder(folder: str):
-    tags = []
+    tags = set()
     comp = re.compile(r"\d{4}")
     if match := re.search(comp, folder):
         match = match[0]
         if 1989 < int(match) < 2020:
-            tags.append(match)
+            tags.add(match)
     possibilities = [
         "Abiball",
         "Toni",
@@ -228,13 +211,13 @@ def create_tag_from_folder(folder: str):
         "Mama"]
     for name in possibilities:
         if name.lower() in folder.lower():
-            tags.append(name)
+            tags.add(name)
     return tags
 
 
 def create_tags_from_file(filename: str):
     """Does not work, currently never called."""
-    check_year(filename)
+    tags = get_year_tags(filename)
     possibilities = [
         "Freya", "Toni",
         "Sina", "Lena", "Luzia", "Helga", "Ritschy", "Tunesien",
@@ -244,17 +227,18 @@ def create_tags_from_file(filename: str):
     ]
     for name in possibilities:
         if name.lower() in filename.lower():
-            tags.append(name)
+            tags.add(name)
     return tags
 
 
-def check_year(filename: str):
-    tags = []
+def get_year_tags(filename: str):
+    tags = set()
     regex_year = re.compile(r"\d{4}")
     if year := re.search(regex_year, filename):
         year = year[0]
         if 1989 < int(year) < 2020:
-            tags.append(year)
+            tags.add(year)
+    return tags
 
 
 def set_up_database(tm: TmsuConnect, path: str, folder=None):
