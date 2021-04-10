@@ -5,8 +5,19 @@ import os
 
 class TmsuConnect():
     def __init__(self):
-        self.connection = sqlite3.connect(".tmsu/db")
-        self.cursor = self.connection.cursor()
+        self.connection = None
+        self.cursor = None
+
+        self.connect_database()
+
+    def connect_database(self):
+        try:
+            self.connection = sqlite3.connect(".tmsu/db")
+            self.cursor = self.connection.cursor()
+            return True
+        except sqlite3.OperationalError as e:
+            print(e)
+            return False
 
     def get_tags(self):
         self.cursor.execute("SELECT * FROM tag")

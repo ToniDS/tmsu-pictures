@@ -7,7 +7,6 @@ from .ProcessedInput import ProcessedInput
 from .TagManager import TagManager
 import argparse
 import re
-from pathlib import Path
 import datetime
 
 
@@ -19,19 +18,33 @@ def main():
     parser.add_argument("--exclude", type=str, default=None,
                         nargs="+")
     parser.add_argument("--all", action='store_true')
+    parser.add_argument("--init", action='store_true')
 
     args = parser.parse_args()
     if args.all:
         all_times = True
     else:
         all_times = False
+
     # TODO: Change to generic home path
     path = os.path.join("/home/toni", args.folder)
     search_tag = args.tag
     exclude_tag = args.exclude
     os.chdir(path)
-
     tm = TmsuConnect()
+
+    if not tm.connection:
+        new_database = input("Do you want to create a new database? \n y/N\n")
+        if new_database == "y":
+            p = subprocess.run(["tmsu", "init"])
+            if p.returncode == 0:
+                tm.connect_database()
+        else:
+            exit()
+
+    if args.init:
+        print("Setting up database")
+        set_up_database(tm, path)
 
     if search_tag:
         all_files = tm.get_files_for_tag(search_tag, exclude_tag)
@@ -62,7 +75,6 @@ def main():
             stdin=subprocess.PIPE
         )
 
-        all_tagnames = {tag.name for tag in tm.get_tags()}
         helpers.print_tags_for_file(tm, tmsu_file)
 
         while True:
@@ -222,7 +234,7 @@ def create_tag_from_folder(folder: str):
 
 def create_tags_from_file(filename: str):
     """Does not work, currently never called."""
-    check_year
+    check_year(filename)
     possibilities = [
         "Freya", "Toni",
         "Sina", "Lena", "Luzia", "Helga", "Ritschy", "Tunesien",
