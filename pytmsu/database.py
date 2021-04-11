@@ -53,7 +53,7 @@ class TmsuConnect():
         # print(res)
         return res is not None
 
-    def get_tags_for_file(self, file):
+    def get_tags_for_file(self, file: 'TmsuFile'):
         """Takes a database connection and a TmsuFile object,
         returns a list of TmsuTag objects associated with this file."""
         self.cursor.execute(
@@ -127,7 +127,7 @@ class TmsuConnect():
             files_for_tag.append(TmsuFile(row))
         return files_for_tag
 
-    def get_latest_edit_date(self, file):
+    def get_latest_edit_date(self, file: 'TmsuFile'):
         self.cursor.execute(
             """
             SELECT value.name
@@ -145,7 +145,6 @@ class TmsuConnect():
         if not res:
             return None
         return res[0]
-
 
     def add_new_tag(self, tag):
         raise NotImplementedError
@@ -180,10 +179,12 @@ class TmsuFile():
     def get_file_path(self):
         return os.path.join(self.directory, self.name)
 
+    def __repr__(self):
+        if not self.is_dir:
+            return f"File {self.get_file_path}"
+
 
 class TmsuTag():
     def __init__(self, db_row):
         self.id = db_row[0]
         self.name = db_row[1]
-
-

@@ -5,6 +5,7 @@ from . import helpers
 from .database import TmsuConnect
 from .ProcessedInput import ProcessedInput
 from .TagManager import TagManager
+from .export import export_files
 import argparse
 import re
 import datetime
@@ -19,8 +20,10 @@ def main():
                         nargs="+")
     parser.add_argument("--all", action='store_true')
     parser.add_argument("--init", action='store_true')
+    parser.add_argument("--export", action="store_true")
 
     args = parser.parse_args()
+    # TODO: Make sure that if I export, all is the other way around. Standard: export those that have been edited
     if args.all:
         all_times = True
     else:
@@ -53,6 +56,11 @@ def main():
 
     print(f"The current database has { len(all_files) } files.")
     helpers.pretty_print_tags(tm)
+
+    #first step: export_all
+    if args.export:
+        export_files(tm, all_files)
+        exit()
 
     tags_from_last = []
     viewer_process = None
