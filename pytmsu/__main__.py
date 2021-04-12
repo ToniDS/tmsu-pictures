@@ -57,7 +57,7 @@ def main():
     print(f"The current database has { len(all_files) } files.")
     helpers.pretty_print_tags(tm)
 
-    #first step: export_all
+    # first step: export_all
     if args.export:
         export_files(tm, all_files)
         exit()
@@ -178,11 +178,11 @@ def add_tags(tags, filepath):
         return
     args = ['tmsu', 'tag', filepath] + tags
     subprocess.run(
-            args,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
+        args,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
     print(f"Added tags {' '.join(tags)} to file {filepath}")
 
 
