@@ -1,14 +1,6 @@
 import subprocess
 import readline
 
-
-def clean_name(some_var):
-    """ Helper function to make variables usable in SQLite queries
-    without risk of SQL injection vulnerability."""
-    var = str(some_var)
-    return ''.join(char for char in var if char.isalnum())
-
-
 def rlinput(prompt, prefill=''):
     readline.set_startup_hook(lambda: readline.insert_text(prefill))
     try:
@@ -52,7 +44,7 @@ def print_tags_for_file(db_connection, file):
     for tag in tags:
         # print(tag.id)
         tag_names.append(tag.name)
-    if not tag_names: 
+    if not tag_names:
         return False
     file_tags= ', '.join(tag_names)
 

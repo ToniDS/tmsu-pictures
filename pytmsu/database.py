@@ -74,13 +74,13 @@ class TmsuConnect():
 
     def get_files_for_tag(self, tag, tags_to_exclude=None):
         if isinstance(tag, str):
-            tag_name = helpers.clean_name(tag)
+            tag_name = tag
         else:
-            tag_name = helpers.clean_name(tag.name)
+            tag_name = tag.name
         if tags_to_exclude:
             for i, tag in enumerate(tags_to_exclude):
                 if isinstance(tags_to_exclude, str):
-                    tags_to_exclude[i] = helpers.clean_name(tag)
+                    tags_to_exclude[i] = tag
         if not tags_to_exclude:
             self.cursor.execute("""
                             WITH FILEID AS (
